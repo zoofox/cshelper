@@ -12,6 +12,7 @@ Page({
     soundType:'选项1',
     readStatusText:'开始',
     isReading:false,
+    breakpoint:'',
     actions: [
       {
         name: '选项1'
@@ -136,20 +137,31 @@ Page({
     }
   },
   startRead(roomId, soundType){
-    console.log('2222')
+    var self = this;
+    setInterval(function(){
+      var breakpoint = self.data.breakpoint;
+      self.getBarrage(roomId, soundType, breakpoint);
+    },1500)
+   
+  },
+  getBarrage(roomId, soundType, breakpoint){
+    var self = this;
     wx.cloud.callFunction({
-      // 需调用的云函数名
       name: 'getRoomBarrage',
-      // 传给云函数的参数
       data: {
         roomId: roomId,
+        breakpoint: '',
         soundType: soundType
       },
-      success:res=>{
-        console.log('a'+res);
+      success: res => {
+        var result = JSON.parse(res.result).data;
+        console.log(result);
+        self.setData({breakpoint:result.breakpoint});
+        var items = result.items;
+        if(items.length != 0){
+          console.log(items);
+        }
       }
-     
-    
     })
   }
 })

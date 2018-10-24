@@ -1,10 +1,12 @@
-// 云函数入口文件
-const cloud = require('wx-server-sdk')
-
-cloud.init()
-
-// 云函数入口函数
+var rp = require('request-promise');
 exports.main = (event, context) => {
-  console.log(event);
-  return event.roomId
+  var res = rp('https://chat.chushou.tv/chat/get.htm?roomId=' + event.roomId + '&breakpoint=' + event.breakpoint)
+  .then(result=>{
+    console.log(result);
+    return result;
+  }).catch(e=>{
+    console.log(e)
+    return e;
+  })
+  return res;
 }
