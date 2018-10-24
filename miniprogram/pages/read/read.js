@@ -108,7 +108,6 @@ Page({
     this.setData({ show: false });
   },
   onSelect(event) {
-    console.log(event.detail);
     this.setData({
       soundType:event.detail.name,
       show:false
@@ -120,7 +119,6 @@ Page({
   readControl(){
     if (!this.data.isReading){
       var roomId = this.data.roomId;
-      console.log(roomId)
       var soundType = this.data.soundType;
       if(roomId == ''){
         Toast.fail('请输入房间号');
@@ -130,11 +128,28 @@ Page({
           Toast.fail('房间号必须为数字哦～');
           return;
         }else{
-          console.log(roomId,soundType);
+          this.startRead(roomId, soundType);
         }
       }
     }else{
 
     }
+  },
+  startRead(roomId, soundType){
+    console.log('2222')
+    wx.cloud.callFunction({
+      // 需调用的云函数名
+      name: 'getRoomBarrage',
+      // 传给云函数的参数
+      data: {
+        roomId: roomId,
+        soundType: soundType
+      },
+      success:res=>{
+        console.log('a'+res);
+      }
+     
+    
+    })
   }
 })
