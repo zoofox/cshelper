@@ -1,2 +1,2 @@
 
-<navigator url="/pages/read/read" hover-class="navigator-hover"><van-button type="primary">读弹幕</van-button></navigator>
+<navigator url="/pages/read/read" hover-class="navigator-hover"><van-button type="primary">read</van-button></navigator>

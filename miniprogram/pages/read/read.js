@@ -1,6 +1,6 @@
 // pages/read/read.js
 import Toast from '../../vant/toast/toast';
-
+var app = getApp();
 Page({
 
   /**
@@ -8,13 +8,13 @@ Page({
    */
   data: {
     show: false,
-    roomId:'',
-    soundType:'选项1',
-    readStatusText:'开始',
-    isReading:false,
-    breakpoint:'',
-    actions: [
-      {
+    roomId: '',
+    soundType: '选项1',
+    readStatusText: '开始',
+    isReading: false,
+    breakpoint: '',
+    buffer: [],
+    actions: [{
         name: '选项1'
       },
       {
@@ -50,118 +50,86 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function(options) {
 
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function () {
+  onReady: function() {
 
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function () {
+  onShow: function() {
 
   },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
-  onChangeRoomId: function (event){
-    this.setData({roomId:event.detail});
+  onChangeRoomId: function(event) {
+    this.setData({
+      roomId: event.detail
+    });
   },
   onClose() {
-    this.setData({ show: false });
+    this.setData({
+      show: false
+    });
   },
   onSelect(event) {
     this.setData({
-      soundType:event.detail.name,
-      show:false
+      soundType: event.detail.name,
+      show: false
     })
   },
-  showSoundTypes(){
-    this.setData({ show: true });
+  showSoundTypes() {
+    this.setData({
+      show: true
+    });
   },
-  readControl(){
-    if (!this.data.isReading){
+  readControl() {
+    if (!this.data.isReading) {
       var roomId = this.data.roomId;
       var soundType = this.data.soundType;
-      if(roomId == ''){
+      if (roomId == '') {
         Toast.fail('请输入房间号');
         return;
-      }else{
-        if(isNaN(roomId)){
+      } else {
+        if (isNaN(roomId)) {
           Toast.fail('房间号必须为数字哦～');
           return;
-        }else{
+        } else {
           this.startRead(roomId, soundType);
         }
       }
-    }else{
+    } else {
 
     }
   },
-  startRead(roomId, soundType){
+  startRead(roomId, soundType) {
     var self = this;
-    setInterval(function(){
-      var breakpoint = self.data.breakpoint;
-      self.getBarrage(roomId, soundType, breakpoint);
-    },1500)
-   
+    this.setData({
+      buffer: []
+    });
+    var breakpoint = self.data.breakpoint;
+    self.getBarrage(roomId, soundType, breakpoint);
+
   },
-  getBarrage(roomId, soundType, breakpoint){
+  getBarrage(roomId, soundType, breakpoint) {
     var self = this;
-    wx.cloud.callFunction({
-      name: 'getRoomBarrage',
-      data: {
-        roomId: roomId,
-        breakpoint: '',
-        soundType: soundType
-      },
-      success: res => {
-        var result = JSON.parse(res.result).data;
-        console.log(result);
-        self.setData({breakpoint:result.breakpoint});
-        var items = result.items;
-        if(items.length != 0){
-          console.log(items);
-        }
+    console.log('bre:'+breakpoint);
+    app.util.getBarrage(roomId,1,breakpoint,function(newBreakpoint,barrages){
+      self.setData({
+        breakpoint: newBreakpoint
+      });
+      if (barrages.length != 0){
+        self.data.buffer = self.data.buffer.concat(barrages);
       }
+      console.log(self.data.buffer);
+      setTimeout(function () {
+        self.getBarrage(roomId, soundType, self.data.breakpoint);
+      }, 1500)
     })
   }
 })
