@@ -1,3 +1,27 @@
 .read-btn{
   margin-top:15px;
 }
+.title{
+  text-align: left;
+  line-height: 22px;
+  height: 22px;
+  font-size:16px;
+  padding-left:10px;
+}
+.label{
+  font-size: 14px;
+  padding-left:14px;
+}
+.switch-box{
+height: 30px;
+line-height: 30px;
+margin-bottom: 10px;
+}
+.switch-box switch{
+  margin-left:20px;
+  margin-top: 5px;
+}
+.tip{
+  font-size:10px;
+  padding-left: 10px;
+}

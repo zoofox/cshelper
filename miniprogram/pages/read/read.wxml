@@ -1,28 +1,14 @@
+<view class="title">读弹幕</view>
 <van-cell-group>
-  <van-field
-    value="{{ roomId }}"
-    required
-    clearable
-    label="房间号"
-    placeholder="请输入房间号"
-    bind:change="onChangeRoomId"
-  />
-   <van-field
-    value="{{ soundType }}"
-    required
-    clearable
-    label="声音"
-    disabled
-    bindtap='showSoundTypes'
-    bind:click-icon="showSoundTypes"
-  />
-  <van-action-sheet
-  show="{{ show }}"
-  actions="{{ actions }}"
-  bind:close="onClose"
-  bind:select="onSelect"
-/>
+  <van-field value="{{ roomId }}" required clearable label="房间号" placeholder="请输入房间号" bind:change="onChangeRoomId" />
+  <van-field value="{{ soundType }}" required clearable label="声音" disabled bindtap='showSoundTypes' bind:click-icon="showSoundTypes" />
+  <view class="switch-box">
+    <text class="label">读发言人昵称</text>
+    <switch checked="{{readname==1}}" bindchange="switchChange"/>
+  </view>
+  <text class="tip">（关闭时，系统自动合并相同的待读弹幕）</text>
+  <van-action-sheet show="{{ show }}" actions="{{ actions }}" bind:close="onClose" bind:select="onSelect"/>
 </van-cell-group>
-<button type="primary" size="{{primarySize}}" 
-	 bindtap="readControl" class="read-btn">{{readStatusText}}</button>
+
+<button type="primary" size="{{primarySize}}" bindtap="readControl" class="read-btn">{{readStatusText}}</button>
 <van-toast id="van-toast" />

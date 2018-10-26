@@ -12,6 +12,10 @@
     "navigationBarTitleText": "cs helper",
     "navigationBarTextStyle": "black"
   },
+  "networkTimeout":{
+    "request":3000
+  },
+  "requiredBackgroundModes":["audio"],
   "tabBar":{
     "list":[
       {

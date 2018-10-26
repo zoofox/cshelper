@@ -4,14 +4,30 @@ Page({
    * 页面的初始数据
    */
   data: {
-    
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    
+    if(!wx.cloud){
+      return;
+    }
+    wx.getSetting({
+      success:res=>{
+        if(res.authSetting['scope.userInfo']){
+          wx.getUserInfo({
+            success:res=>{
+              console.log(res)
+              this.setData({
+                avatarUrl:res.userInfo.avatarUrl,
+                userInfo:res.userInfo
+              })
+            }
+          })
+        }
+      }
+    })
   },
 
   /**
