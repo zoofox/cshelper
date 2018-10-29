@@ -166,38 +166,34 @@ Page({
     this.data.audio.title = '触手直播助手';
     this.data.audio.epname = this.data.roomId;
     this.data.audio.singer = '房间号'
-    this.data.audio.coverImgUrl = 'http://y.gtimg.cn/music/photo_new/T002R300x300M000003rsKF44GyaSk.jpg?max_age=2592000'
+    this.data.audio.coverImgUrl = 'https://kascdn.kascend.com/jellyfish/avatar/109474876/1509364203903.jpg'
     // 设置了 src 之后会自动播放
-    this.data.audio.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'
+    //this.data.audio.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'
     this.data.audio.onEnded((res) => {
       if (this.data.isReading) {
         console.log('read end')
         this.playTask();
       }
     })
-    callback();
-  }
-  ,
-  initAudio(callback){
-    this.data.audio = wx.createInnerAudioContext();
-    this.data.audio.autoplay = true;
-    this.data.audio.onError((res) => {
-      console.log(res.errMsg)
-      console.log(res.errCode)
-      if (this.data.isReading) {
-        this.playTask();
-      }
+    this.data.audio.onPlay(() => {
+      console.log('开始播放')
     })
-    this.data.audio.onEnded((res) => {
-      if(this.data.isReading){
-        console.log('read end')
-        this.playTask();
-      }
+    this.data.audio.onError((err) => {
+      console.log('on error')
+      console.log(err);
+    })
+    this.data.audio.onCanplay(() => {
+      console.log('onCanPlay')
+    })
+    this.data.audio.onWaiting(() => {
+      console.log('onWaiting')
     })
     callback();
   },
   play(src){
     console.log('read start')
+    console.log(src);
+    console.log(this.data.audio);
     this.data.audio.src = src;
   },
   stop(){

@@ -2,7 +2,7 @@ module.exports = {
   getBarrage(roomId, barrageType, breakpoint,callback){
     var self = this;
     var returnItems = [];
-    console.log('--------------->>>')
+    // console.log('--------------->>>')
     wx.request({
       url: 'https://chat.chushou.tv/chat/get.htm?roomId=' + roomId + '&breakpoint=' + breakpoint,
       header: {
