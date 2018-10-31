@@ -10,7 +10,6 @@ Page({
     show: false,
     roomId: '',
     soundType: '暂不可选',
-    readStatusText: '开始',
     isReading: false,
     breakpoint: '',
     buffer: [],
@@ -18,6 +17,7 @@ Page({
     intervalTime:null,
     openId:'',
     readname:0,
+    readnumber:1,
     actions: [{
       name: '暂不可选'
       }
@@ -30,6 +30,25 @@ Page({
   onLoad: function(options) {
     var value = wx.getStorageSync('openId')
     this.setData({openId:value});
+    var self = this;
+    var center = wx.getStorage({
+      key: 'center',
+      success: function (res) {
+        var isReading = res.data.read;
+        self.setData({
+          isReading: isReading
+        })
+        if (isReading) {
+          var readData = wx.getStorage({
+            key: 'read',
+            success: function (data) {
+              console.log(data.data);
+              self.setData(data.data);
+            }
+          })
+        }
+      },
+    })
   },
 
   /**
@@ -43,7 +62,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function() {
-
+   
   },
   onChangeRoomId: function(event) {
     this.setData({
@@ -66,6 +85,13 @@ Page({
     this.setData({
       readname:1-readname
     })
+  },
+  switchNumberChange() {
+    var readnumber = this.data.readnumber;
+    this.setData({
+      readnumber: 1 - readnumber
+    })
+    this.data.buffer = [];
   },
   showSoundTypes() {
     this.setData({
@@ -90,22 +116,43 @@ Page({
       }
     } else {
       this.setData({
-        readStatusText: '开始',
         buffer: [],
         isReading: false
       });
       this.clear();
-      this.stop();
+      app.util.changeCenter('read',0);
+      wx.setStorage({
+        key: 'read',
+        data: {
+          isReading: this.data.isReading,
+          roomId: this.data.roomId,
+          readname: this.data.readname,
+          readnumber: this.data.readnumber,
+          soundType: this.data.soundType}
+      })
+      if(this.data.audio){
+        this.stop();
+      }
     }
   },
   startRead(roomId, soundType) {
     var self = this;
     var breakpoint = self.data.breakpoint;
     this.setData({
-      readStatusText: '停止',
       buffer: [],
       isReading:true
     });
+    wx.setStorage({
+      key: "read",
+      data: {
+        isReading:this.data.isReading,
+        roomId:this.data.roomId,
+        readname:this.data.readname,
+        readnumber: this.data.readnumber,
+        soundType:this.data.soundType
+      }
+    })
+    app.util.changeCenter('read',1);
     self.getBarrage(roomId, soundType, breakpoint);
     if(!self.data.audio){
       self.initBackground(() => {
@@ -117,7 +164,10 @@ Page({
   },
   getBarrage(roomId, soundType, breakpoint) {
     var self = this;
-    app.util.getBarrage(roomId,1,breakpoint,function(newBreakpoint,barrages){
+    var filter = {
+      dropNum: this.data.readnumber
+    };
+    app.util.getBarrage(roomId, 1, breakpoint,filter,function(newBreakpoint,barrages){
       self.setData({
         breakpoint: newBreakpoint
       });
@@ -141,7 +191,6 @@ Page({
     console.log(this.data.buffer.length)
     if (this.data.buffer.length != 0){
       var textdata = self.data.buffer.shift();
-      
       var readname = this.data.readname;
       if(readname == 1){
         var text = textdata['user'].nickname+'说' + textdata['content'];
@@ -182,6 +231,7 @@ Page({
     this.data.audio.onError((err) => {
       console.log('on error')
       console.log(err);
+      this.playTask();
     })
     this.data.audio.onCanplay(() => {
       console.log('onCanPlay')

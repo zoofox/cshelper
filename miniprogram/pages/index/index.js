@@ -1,3 +1,4 @@
+var app = getApp();
 Page({
 
   /**
@@ -41,7 +42,17 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    
+    var self = this;
+    wx.getStorage({
+      key: 'center',
+      success: function(res) {
+        console.log(res.data);
+        self.setData(res.data);
+      },
+      fail:function(err){
+        app.util.initCenter();
+      }
+    })
   },
 
   /**

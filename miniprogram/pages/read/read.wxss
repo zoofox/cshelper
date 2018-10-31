@@ -18,8 +18,14 @@ line-height: 30px;
 margin-bottom: 10px;
 }
 .switch-box switch{
-  margin-left:20px;
+  margin-right:10px;
   margin-top: 5px;
+  float:right;
+}
+.line{
+  border-top:1px solid rgba(0,0,0,.1);
+  margin-left:10px;
+  margin-top: 10px;
 }
 .tip{
   font-size:10px;

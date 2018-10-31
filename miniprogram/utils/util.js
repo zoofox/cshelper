@@ -1,5 +1,5 @@
 module.exports = {
-  getBarrage(roomId, barrageType, breakpoint,callback){
+  getBarrage(roomId, barrageType,filter, breakpoint,callback){
     var self = this;
     var returnItems = [];
     // console.log('--------------->>>')
@@ -18,11 +18,17 @@ module.exports = {
             items.forEach(function (v, k) {
               if (v.type == barrageType) {
                 if(barrageType == 1){
-                  returnItems.push(self.takeOffContentShell(v));
+                  var item = self.takeOffContentShell(v);
+                  if (filter && filter.dropNum == 1){
+                    if(!item.isNum){
+                      returnItems.push(item);
+                    }
+                  }else{
+                    returnItems.push(item);
+                  }
                 }else{
                   returnItems.push(v);
                 }
-                
               }
             })
           }
@@ -38,14 +44,20 @@ module.exports = {
   takeOffContentShell(item){
     if (item.content.indexOf('<![JSON[') == 0 && item.content.indexOf(']]>' > -1)) {
       var contentJson =  JSON.parse(content.slice(8, -3));
+      var content = this.emojiHandler(contentJson.content);
+      var isNum = isNaN(content)?0:1;
       return {
-        content: this.emojiHandler(contentJson.content),
-        user:item.user
+        content: content,
+        user:item.user,
+        isNum: isNum
       }
     }else{
+      var content = this.emojiHandler(item.content);
+      var isNum = isNaN(content) ? 0 : 1;
       return {
-        content: this.emojiHandler(item.content),
-        user: item.user
+        content: content,
+        user: item.user,
+        isNum: isNum
       }
     }
   },
@@ -100,5 +112,22 @@ module.exports = {
       }
     });
     return newarr;
+  },
+  initCenter(){
+    wx.setStorage({
+      key: 'center',
+      data: {
+        read:0
+      }
+    })
+  },
+  //center数据控制全局状态
+  changeCenter(key,val){
+    var center = wx.getStorageSync('center');
+    center[key] = val;
+    wx.setStorage({
+      key: 'center',
+      data: center
+    })
   }
 }

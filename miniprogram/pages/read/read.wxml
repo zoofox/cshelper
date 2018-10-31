@@ -7,8 +7,17 @@
     <switch checked="{{readname==1}}" bindchange="switchChange"/>
   </view>
   <text class="tip">（关闭时，系统自动合并相同的待读弹幕）</text>
+  <view class="line"></view>
+   <view class="switch-box">
+    <text class="label">不读纯数字弹幕(比如：2333)</text>
+    <switch checked="{{readnumber==1}}" bindchange="switchNumberChange"/>
+  </view>
+  
   <van-action-sheet show="{{ show }}" actions="{{ actions }}" bind:close="onClose" bind:select="onSelect"/>
 </van-cell-group>
 
-<button type="primary" size="{{primarySize}}" bindtap="readControl" class="read-btn">{{readStatusText}}</button>
+<button type="primary" size="{{primarySize}}" bindtap="readControl" class="read-btn">
+<view wx:if="{{isReading}}">停止</view>
+<view wx:else>运行</view>
+</button>
 <van-toast id="van-toast" />

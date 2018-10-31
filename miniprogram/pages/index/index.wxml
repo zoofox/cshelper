@@ -1,7 +1,6 @@
-<!-- <view class="section">
-  <image style="background-color: #eeeeee;" mode="scaleToFill" src="{{avatarUrl}}" class="avatar"></image>
-  <text>{{name}}</text>
-</view> -->
-
-aaa
-<navigator url="/pages/read/read" hover-class="navigator-hover"><van-button type="primary">read</van-button></navigator>
+<navigator url="/pages/read/read" hover-class="navigator-hover"><van-button type="primary">
+read
+<block wx:if="{{read==1}}">
+  运行中..
+</block>
+</van-button></navigator>
