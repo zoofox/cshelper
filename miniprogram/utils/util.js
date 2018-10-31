@@ -1,5 +1,6 @@
 module.exports = {
-  getBarrage(roomId, barrageType,filter, breakpoint,callback){
+  getBarrage(roomId, barrageType, breakpoint,filter,callback){
+    console.log(breakpoint)
     var self = this;
     var returnItems = [];
     // console.log('--------------->>>')
@@ -62,23 +63,32 @@ module.exports = {
     }
   },
   emojiHandler(text){
-    return text.replace('1_', '').replace('2_', '');
+    var reg0 = new RegExp('1_','g');
+    var reg1 = new RegExp('2_', 'g');
+    return text.replace(reg0, '').replace(reg1, '');
   }
   ,
-  text2audio(text,id,callback){
-    var date = Date.now()+'';
-    var rnd = Math.floor(Math.random()*10000);
-    var name = date+rnd;
-    var mp3url = 'https://niyh.cn/mp3/'+id+'/'+ name+'.mp3';
+  text2audio(textarr,id,callback){
+    // var date = Date.now()+'';
+    // var rnd = Math.floor(Math.random()*10000);
+    // var name = date+rnd;
+    //var mp3url = 'https://niyh.cn/mp3/'+id+'/'+ name+'.mp3';
+    var textstring = JSON.stringify(textarr);
     wx.request({
-      url: 'https://niyh.cn/kdxf/text2audio?name=' + name+'&text='+text+'&id='+id,
+      url: 'https://niyh.cn/kdxf/text2audio',
+      method:'POST',
       header: {
         'content-type': 'application/json' // 默认值
       },
+      data:{
+        text:textstring,
+        id:id
+      },
       success(res) {
        if(res.data.code == 0){
-         callback(mp3url)
+         callback(res.data.urls);
        }else{
+         console.log(res);
          callback(null)
        }
       }
@@ -96,6 +106,12 @@ module.exports = {
       }
     })
   },
+  getRandomName(){
+    var date = Date.now() + '';
+    var rnd = Math.floor(Math.random() * 10000);
+    return date + rnd;
+  }
+  ,
   //数组去重
   removeDuplicatedItem(arr){
     var contentarr = [];

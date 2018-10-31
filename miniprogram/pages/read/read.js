@@ -18,6 +18,7 @@ Page({
     openId:'',
     readname:0,
     readnumber:1,
+    bufferControlLength:20,//buffer长度超过时，则取一半，丢弃之前弹幕
     actions: [{
       name: '暂不可选'
       }
@@ -178,6 +179,12 @@ Page({
         }else{
           self.data.buffer = self.data.buffer.concat(barrages);
         }
+        var bufferlen = self.data.buffer.length;
+        //超过限制，丢弃一半弹幕
+        if (bufferlen >= self.data.bufferControlLength){
+          var newbufferlen = Math.floor(bufferlen / 2);
+          self.data.buffer = self.data.buffer.slice(newbufferlen);
+        }
       }
       if(self.data.isReading){
         setTimeout(function () {
@@ -190,18 +197,36 @@ Page({
     var self = this;
     console.log(this.data.buffer.length)
     if (this.data.buffer.length != 0){
-      var textdata = self.data.buffer.shift();
+      // var textdata = self.data.buffer.shift();
       var readname = this.data.readname;
-      if(readname == 1){
-        var text = textdata['user'].nickname+'说' + textdata['content'];
-      }else{
-        var text = textdata['content'];
-      }
-      app.util.text2audio(text,this.data.openId,(url)=>{
+      var textdata = self.data.buffer.splice(0,5);//取前5个
+      var textarr = textdata.map((v,i)=>{
+        var name = app.util.getRandomName();
+        if (readname == 1) {
+          return {
+            text: v['user'].nickname + '说' + v['content'],
+            name: name
+          }
+        } else {
+          return {
+            text: v['content'],
+            name: name
+          };
+        }
+      }) 
+      // if(readname == 1){
+      //   var text = textdata['user'].nickname+'说' + textdata['content'];
+      // }else{
+      //   var text = textdata['content'];
+      // }
+      app.util.text2audio(textarr,this.data.openId,(url)=>{
         if(url){
           if(self.data.isReading){
             self.play(url);
           }
+        }else{
+          console.log('get mp3url err,next play...')
+          self.playTask();
         }
       })
     }else{
