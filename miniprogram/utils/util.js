@@ -1,9 +1,7 @@
 module.exports = {
   getBarrage(roomId, barrageType, breakpoint,filter,callback){
-    console.log(breakpoint)
     var self = this;
     var returnItems = [];
-    // console.log('--------------->>>')
     wx.request({
       url: 'https://chat.chushou.tv/chat/get.htm?roomId=' + roomId + '&breakpoint=' + breakpoint,
       header: {
@@ -37,7 +35,6 @@ module.exports = {
         callback(newBreakpoint, returnItems);
       },
       fail(res){
-        console.log('fail')
         callback(breakpoint, []);
       }
     })
@@ -69,10 +66,6 @@ module.exports = {
   }
   ,
   text2audio(textarr,id,callback){
-    // var date = Date.now()+'';
-    // var rnd = Math.floor(Math.random()*10000);
-    // var name = date+rnd;
-    //var mp3url = 'https://niyh.cn/mp3/'+id+'/'+ name+'.mp3';
     var textstring = JSON.stringify(textarr);
     wx.request({
       url: 'https://niyh.cn/kdxf/text2audio',
@@ -81,16 +74,19 @@ module.exports = {
         'content-type': 'application/json' // 默认值
       },
       data:{
-        text:textstring,
+        textarr:textstring,
         id:id
       },
       success(res) {
        if(res.data.code == 0){
          callback(res.data.urls);
        }else{
-         console.log(res);
-         callback(null)
+         console.log('text2audio超时');
+         callback(null);
        }
+      },
+      fail(){
+        callback(null);
       }
     })
   },

@@ -19,6 +19,7 @@ Page({
     readname:0,
     readnumber:1,
     bufferControlLength:20,//buffer长度超过时，则取一半，丢弃之前弹幕
+    urls:[],
     actions: [{
       name: '暂不可选'
       }
@@ -141,6 +142,7 @@ Page({
     var breakpoint = self.data.breakpoint;
     this.setData({
       buffer: [],
+      urls:[],
       isReading:true
     });
     wx.setStorage({
@@ -154,16 +156,17 @@ Page({
       }
     })
     app.util.changeCenter('read',1);
-    self.getBarrage(roomId, soundType, breakpoint);
+    self.getBarrageTask(roomId, soundType, breakpoint);
+    self.getUrlTask();
     if(!self.data.audio){
-      self.initBackground(() => {
+      self.initBackgroundAudio(() => {
         self.playTask();
       })
     }else{
        self.playTask();
     }
   },
-  getBarrage(roomId, soundType, breakpoint) {
+  getBarrageTask(roomId, soundType, breakpoint) {
     var self = this;
     var filter = {
       dropNum: this.data.readnumber
@@ -188,16 +191,16 @@ Page({
       }
       if(self.data.isReading){
         setTimeout(function () {
-          self.getBarrage(roomId, soundType, self.data.breakpoint);
+          self.getBarrageTask(roomId, soundType, self.data.breakpoint);
         }, 1500)
+      }else{
+        self.data.buffer = [];
       }
     })
   },
-  playTask:function(){
+  getUrlTask:function(){
     var self = this;
-    console.log(this.data.buffer.length)
     if (this.data.buffer.length != 0){
-      // var textdata = self.data.buffer.shift();
       var readname = this.data.readname;
       var textdata = self.data.buffer.splice(0,5);//取前5个
       var textarr = textdata.map((v,i)=>{
@@ -214,39 +217,44 @@ Page({
           };
         }
       }) 
-      // if(readname == 1){
-      //   var text = textdata['user'].nickname+'说' + textdata['content'];
-      // }else{
-      //   var text = textdata['content'];
-      // }
-      app.util.text2audio(textarr,this.data.openId,(url)=>{
-        if(url){
-          if(self.data.isReading){
-            self.play(url);
-          }
+      app.util.text2audio(textarr,this.data.openId,(urls)=>{
+        if(urls){
+          self.data.urls  = self.data.urls.concat(urls);
+        }
+        if (this.data.isReading) {
+          setTimeout(self.getUrlTask, 2000);
         }else{
-          console.log('get mp3url err,next play...')
-          self.playTask();
+          self.data.urls = [];
         }
       })
     }else{
       if (this.data.isReading){
-        setTimeout(self.playTask, 1500);
+        setTimeout(self.getUrlTask, 2000);
+      }else{
+        self.data.urls = [];
       }
     }
   },
-  initBackground(callback){
+  playTask(){
+    if(this.data.isReading){
+      if(this.data.urls.length!=0){
+        var url = this.data.urls.shift();
+        this.play(url);
+      }else{
+        setTimeout(this.playTask,1000);
+      }
+    }
+  },
+  initBackgroundAudio(callback){
     this.data.audio = wx.getBackgroundAudioManager();
     this.data.audio.title = '触手直播助手';
     this.data.audio.epname = this.data.roomId;
     this.data.audio.singer = '房间号'
     this.data.audio.coverImgUrl = 'http://y.gtimg.cn/music/photo_new/T002R300x300M000003rsKF44GyaSk.jpg?max_age=2592000'
     // 设置了 src 之后会自动播放
-    //this.data.audio.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'
     // this.data.audio.src ='http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46';
     this.data.audio.onEnded((res) => {
       if (this.data.isReading) {
-        console.log('read end')
         this.playTask();
       }
     })
@@ -268,12 +276,13 @@ Page({
   },
   play(src){
     console.log('read start')
-    console.log(src);
-    console.log(this.data.audio);
-    this.data.audio.src = src;
-    this.data.audio.title = '触手直播助手';
-    this.data.audio.epname = this.data.roomId;
-    this.data.audio.singer = '房间号'
+    try{
+      this.data.audio.src = src;
+    }catch(e){
+      console.log(e);
+      this.playTask();
+    }
+    
   },
   stop(){
     this.data.audio.stop();
@@ -281,5 +290,9 @@ Page({
   //清空该id下的音频目录
   clear(){
     app.util.clearFiles(this.data.openId);
+  },
+  //防止waiting太久
+  waitProtect(){
+
   }
 })
